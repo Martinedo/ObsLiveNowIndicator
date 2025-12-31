@@ -1,0 +1,92 @@
+<Window x:Class="ObsLiveNowIndicator.Windows.AboutWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="About OBS Live Indicator" 
+        Height="450" Width="500"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False">
+    <Grid Margin="25">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- App Title -->
+        <StackPanel Grid.Row="0" HorizontalAlignment="Center" Margin="0,10,0,20">
+            <TextBlock x:Name="AppTitleText"
+                       Text="OBS Live Now Indicator" 
+                       FontSize="24" 
+                       FontWeight="Bold"
+                       HorizontalAlignment="Center"
+                       Margin="0,0,0,8"/>
+            <TextBlock x:Name="VersionText"
+                       Text="Version 1.0.0" 
+                       FontSize="13" 
+                       Foreground="Gray"
+                       HorizontalAlignment="Center"/>
+        </StackPanel>
+
+        <!-- Info Section -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel VerticalAlignment="Center">
+                <TextBlock Text="A simple desktop indicator that shows when OBS is streaming live." 
+                           TextWrapping="Wrap"
+                           TextAlignment="Center"
+                           Margin="0,0,0,20"/>
+            
+            <StackPanel HorizontalAlignment="Center" Margin="0,0,0,15">
+                <TextBlock Text="Developed by:" 
+                           FontSize="14"
+                           FontWeight="SemiBold"
+                           HorizontalAlignment="Center"/>
+                <TextBlock Text="MAGBIT s.r.o." 
+                           FontSize="16"
+                           HorizontalAlignment="Center"
+                           Margin="0,8,0,0"/>
+            </StackPanel>
+            
+            <StackPanel HorizontalAlignment="Center" Margin="0,0,0,15">
+                <TextBlock Text="Contact:" 
+                           FontSize="14"
+                           FontWeight="SemiBold"
+                           HorizontalAlignment="Center"/>
+                <TextBlock x:Name="EmailLink"
+                           Text="martin.gburik@magbit.sk" 
+                           FontSize="15"
+                           Foreground="Blue"
+                           TextDecorations="Underline"
+                           Cursor="Hand"
+                           HorizontalAlignment="Center"
+                           Margin="0,8,0,0"
+                           MouseLeftButtonUp="EmailLink_Click"/>
+            </StackPanel>
+            
+            <StackPanel HorizontalAlignment="Center">
+                <TextBlock Text="Source Code:" 
+                           FontSize="14"
+                           FontWeight="SemiBold"
+                           HorizontalAlignment="Center"/>
+                <TextBlock x:Name="GitHubLink"
+                           Text="github.com/Martinedo/ObsLiveNowIndicator" 
+                           FontSize="15"
+                           Foreground="Blue"
+                           TextDecorations="Underline"
+                           Cursor="Hand"
+                           HorizontalAlignment="Center"
+                           Margin="0,8,0,0"
+                           MouseLeftButtonUp="GitHubLink_Click"/>
+            </StackPanel>
+        </StackPanel>
+        </ScrollViewer>
+
+        <!-- Close Button -->
+        <Button Grid.Row="2" 
+                Content="Close" 
+                Width="100" 
+                Height="30"
+                HorizontalAlignment="Center"
+                Click="CloseButton_Click"/>
+    </Grid>
+</Window>

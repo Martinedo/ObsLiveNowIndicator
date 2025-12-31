@@ -1,0 +1,3 @@
+@echo off
+echo Starting OBS Live Now Indicator...
+dotnet run --project ObsLiveNowIndicator

@@ -1,0 +1,179 @@
+<Window x:Class="ObsLiveNowIndicator.Windows.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:models="clr-namespace:ObsLiveNowIndicator.Models"
+        Title="OBS Live Indicator - Settings" 
+        Height="580" Width="500"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize">
+    <Window.Resources>
+        <Style TargetType="Label">
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,10,0,5"/>
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="Height" Value="30"/>
+        </Style>
+        <Style TargetType="PasswordBox">
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="Height" Value="30"/>
+        </Style>
+        <Style TargetType="ComboBox">
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="Height" Value="30"/>
+        </Style>
+    </Window.Resources>
+    
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" 
+                   Text="OBS Live Indicator Settings" 
+                   FontSize="18" 
+                   FontWeight="Bold"
+                   Margin="0,0,0,20"/>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <!-- OBS Connection Settings -->
+                <GroupBox Header="OBS WebSocket Connection" Padding="10" Margin="0,0,0,15">
+                    <StackPanel>
+                        <Label Content="WebSocket URL:"/>
+                        <TextBox x:Name="UrlTextBox" Text="ws://localhost"/>
+                        
+                        <Label Content="Port:"/>
+                        <TextBox x:Name="PortTextBox" Text="4455"/>
+                        
+                        <Label Content="Password (optional):"/>
+                        <PasswordBox x:Name="PasswordBox"/>
+                        <TextBlock Text="Password is encrypted using Windows DPAPI" 
+                                   FontSize="10" 
+                                   Foreground="Gray" 
+                                   Margin="0,5,0,0"/>
+                        
+                        <Button x:Name="TestConnectionButton"
+                                Content="Test Connection" 
+                                Click="TestConnectionButton_Click"
+                                Margin="0,15,0,0"
+                                Padding="10,5"
+                                HorizontalAlignment="Left"/>
+                        <TextBlock x:Name="ConnectionStatusText"
+                                   Text="" 
+                                   FontSize="11" 
+                                   Margin="0,5,0,0"
+                                   TextWrapping="Wrap"/>
+                    </StackPanel>
+                </GroupBox>
+
+                <!-- Appearance Settings -->
+                <GroupBox Header="Live Icon Appearance" Padding="10" Margin="0,0,0,15">
+                    <StackPanel>
+                        <Label Content="Icon Type:"/>
+                        <ComboBox x:Name="AppearanceComboBox" SelectedIndex="0">
+                            <ComboBoxItem Content="Star (4-pointed, candle-like)" Tag="Star"/>
+                            <ComboBoxItem Content="Circle" Tag="Circle"/>
+                            <ComboBoxItem Content="Square" Tag="Square"/>
+                        </ComboBox>
+                        
+                        <CheckBox x:Name="EnablePulseCheckBox" 
+                                  Content="Enable pulsing animation" 
+                                  IsChecked="True" 
+                                  Margin="0,10,0,0"/>
+                        
+                        <Label Content="Icon Size:" Margin="0,10,0,5"/>
+                        <StackPanel Orientation="Horizontal">
+                            <Slider x:Name="SizeSlider" 
+                                    Minimum="40" 
+                                    Maximum="200" 
+                                    Value="80" 
+                                    Width="300" 
+                                    TickFrequency="10" 
+                                    IsSnapToTickEnabled="True"
+                                    VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding ElementName=SizeSlider, Path=Value, StringFormat='{}{0:0} px'}" 
+                                       Margin="10,0,0,0" 
+                                       VerticalAlignment="Center" 
+                                       MinWidth="50"/>
+                        </StackPanel>
+                        
+                        <Label Content="Icon Opacity:" Margin="0,10,0,5"/>
+                        <StackPanel Orientation="Horizontal">
+                            <Slider x:Name="OpacitySlider" 
+                                    Minimum="0" 
+                                    Maximum="1.0" 
+                                    Value="0.9" 
+                                    Width="300" 
+                                    TickFrequency="0.1" 
+                                    IsSnapToTickEnabled="True"
+                                    VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding ElementName=OpacitySlider, Path=Value, StringFormat='{}{0:0%}'}" 
+                                       Margin="10,0,0,0" 
+                                       VerticalAlignment="Center" 
+                                       MinWidth="50"/>
+                        </StackPanel>
+                        
+                        <Label Content="Icon Position:"/>
+                        <ComboBox x:Name="PositionComboBox" SelectedIndex="1">
+                            <ComboBoxItem Content="Top Left" Tag="TopLeft"/>
+                            <ComboBoxItem Content="Top Right" Tag="TopRight"/>
+                            <ComboBoxItem Content="Top Center" Tag="TopCenter"/>
+                            <ComboBoxItem Content="Bottom Left" Tag="BottomLeft"/>
+                            <ComboBoxItem Content="Bottom Right" Tag="BottomRight"/>
+                            <ComboBoxItem Content="Bottom Center" Tag="BottomCenter"/>
+                        </ComboBox>
+                        
+                        <Button x:Name="TestButton"
+                                Content="Start Test" 
+                                Click="TestButton_Click"
+                                Margin="0,10,0,0"
+                                Padding="10,5"/>
+                        <TextBlock Text="Toggle test display. Disabled during active streaming. Test stops when you close settings." 
+                                   FontSize="10" 
+                                   Foreground="Gray" 
+                                   Margin="0,5,0,0"
+                                   TextWrapping="Wrap"/>
+                    </StackPanel>
+                </GroupBox>
+
+                <!-- Startup Settings -->
+                <GroupBox Header="Application Settings" Padding="10">
+                    <StackPanel>
+                        <CheckBox x:Name="RunOnStartupCheckBox" 
+                                  Content="Run on Windows startup" 
+                                  IsChecked="True"
+                                  VerticalAlignment="Center"
+                                  Margin="0,5"/>
+                        <TextBlock Text="Application will start automatically when Windows starts" 
+                                   FontSize="10" 
+                                   Foreground="Gray" 
+                                   Margin="20,5,0,0"
+                                   TextWrapping="Wrap"/>
+                    </StackPanel>
+                </GroupBox>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Action Buttons -->
+        <StackPanel Grid.Row="2" 
+                    Orientation="Horizontal" 
+                    HorizontalAlignment="Right" 
+                    Margin="0,20,0,0">
+            <Button Content="Save" 
+                    Width="100" 
+                    Height="35" 
+                    Margin="0,0,10,0"
+                    Click="SaveButton_Click"
+                    IsDefault="True"/>
+            <Button Content="Cancel" 
+                    Width="100" 
+                    Height="35"
+                    Click="CancelButton_Click"
+                    IsCancel="True"/>
+        </StackPanel>
+    </Grid>
+</Window>
