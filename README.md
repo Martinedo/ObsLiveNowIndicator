@@ -89,6 +89,14 @@ dotnet run --project ObsLiveNowIndicator
 # Or use: run.bat
 ```
 
+## Creating a Release
+
+1. Update version in `ObsLiveNowIndicator.csproj` and `app.manifest`
+2. Commit changes: `git commit -m "Bump version to X.Y.Z"`
+3. Create tag: `git tag vX.Y.Z`
+4. Push tag: `git push origin vX.Y.Z`
+5. GitHub Actions will automatically build and create the release
+
 ## Credits
 
 - Uses [obs-websocket-dotnet](https://github.com/BarRaider/obs-websocket-dotnet) for OBS WebSocket communication
