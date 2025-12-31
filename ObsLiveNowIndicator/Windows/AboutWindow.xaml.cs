@@ -25,7 +25,7 @@ public partial class AboutWindow : Window
         }
         catch
         {
-            VersionText.Text = "Version 1.0.0";
+            VersionText.Text = "Version 1.0.1";
         }
     }
 

@@ -22,7 +22,7 @@
                        HorizontalAlignment="Center"
                        Margin="0,0,0,8"/>
             <TextBlock x:Name="VersionText"
-                       Text="Version 1.0.0" 
+                       Text="Version 1.0.1" 
                        FontSize="13" 
                        Foreground="Gray"
                        HorizontalAlignment="Center"/>
