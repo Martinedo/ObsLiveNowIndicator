@@ -21,6 +21,16 @@ public partial class OverlayWindow : Window
     
     [DllImport("user32.dll")]
     private static extern int SetWindowLong(IntPtr hwnd, int index, int newStyle);
+    
+    // Windows API for per-monitor DPI
+    [DllImport("user32.dll")]
+    private static extern IntPtr MonitorFromPoint(System.Drawing.Point pt, uint dwFlags);
+    
+    [DllImport("shcore.dll")]
+    private static extern int GetDpiForMonitor(IntPtr hmonitor, int dpiType, out uint dpiX, out uint dpiY);
+    
+    private const uint MONITOR_DEFAULTTONEAREST = 2;
+    private const int MDT_EFFECTIVE_DPI = 0;
 
     private Storyboard? _pulseAnimation;
     private double _baseOpacity = 1.0;
@@ -116,42 +126,84 @@ public partial class OverlayWindow : Window
         
         int margin = 20;
         
-        // Use screen working area bounds directly (already in screen coordinates)
+        // Get DPI scale factor for the specific monitor
+        double scaleX = 1.0;
+        double scaleY = 1.0;
+        
+        try
+        {
+            // Get monitor handle for this screen
+            var point = new System.Drawing.Point(screen.Bounds.Left + 1, screen.Bounds.Top + 1);
+            IntPtr monitor = MonitorFromPoint(point, MONITOR_DEFAULTTONEAREST);
+            
+            // Get DPI for this specific monitor
+            if (GetDpiForMonitor(monitor, MDT_EFFECTIVE_DPI, out uint dpiX, out uint dpiY) == 0)
+            {
+                scaleX = dpiX / 96.0;
+                scaleY = dpiY / 96.0;
+                System.Diagnostics.Debug.WriteLine($"Screen at {screen.Bounds.Left},{screen.Bounds.Top}: DPI={dpiX}x{dpiY}, Scale={scaleX}x{scaleY}");
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine($"Screen at {screen.Bounds.Left},{screen.Bounds.Top}: GetDpiForMonitor failed, using scale 1.0");
+            }
+        }
+        catch (Exception ex)
+        {
+            // Fallback to window's DPI if API call fails
+            var dpi = VisualTreeHelper.GetDpi(this);
+            scaleX = dpi.DpiScaleX;
+            scaleY = dpi.DpiScaleY;
+            System.Diagnostics.Debug.WriteLine($"Screen at {screen.Bounds.Left},{screen.Bounds.Top}: DPI API failed ({ex.Message}), using window DPI scale {scaleX}x{scaleY}");
+        }
+        
+        // Screen.Bounds returns physical pixels, but WPF uses DIPs (device-independent pixels)
+        // Convert physical pixels to DIPs by dividing by scale factor
         var bounds = screen.Bounds;
+        double left = bounds.Left / scaleX;
+        double top = bounds.Top / scaleY;
+        double width = bounds.Width / scaleX;
+        double height = bounds.Height / scaleY;
+        double right = left + width;
+        double bottom = top + height;
+        
+        System.Diagnostics.Debug.WriteLine($"Screen DIPs: Left={left}, Top={top}, Width={width}, Height={height}");
 
-        // Calculate position based on IconPosition
+        // Calculate position based on IconPosition (all in DIPs now)
         switch (position)
         {
             case IconPosition.TopLeft:
-                Left = bounds.Left + margin;
-                Top = bounds.Top + margin;
+                Left = left + margin;
+                Top = top + margin;
                 break;
                 
             case IconPosition.TopRight:
-                Left = bounds.Right - _iconSize - margin;
-                Top = bounds.Top + margin;
+                Left = right - _iconSize - margin;
+                Top = top + margin;
                 break;
                 
             case IconPosition.TopCenter:
-                Left = bounds.Left + (bounds.Width - _iconSize) / 2;
-                Top = bounds.Top + margin;
+                Left = left + (width - _iconSize) / 2;
+                Top = top + margin;
                 break;
                 
             case IconPosition.BottomLeft:
-                Left = bounds.Left + margin;
-                Top = bounds.Bottom - _iconSize - margin;
+                Left = left + margin;
+                Top = bottom - _iconSize - margin;
                 break;
                 
             case IconPosition.BottomRight:
-                Left = bounds.Right - _iconSize - margin;
-                Top = bounds.Bottom - _iconSize - margin;
+                Left = right - _iconSize - margin;
+                Top = bottom - _iconSize - margin;
                 break;
                 
             case IconPosition.BottomCenter:
-                Left = bounds.Left + (bounds.Width - _iconSize) / 2;
-                Top = bounds.Bottom - _iconSize - margin;
+                Left = left + (width - _iconSize) / 2;
+                Top = bottom - _iconSize - margin;
                 break;
         }
+        
+        System.Diagnostics.Debug.WriteLine($"Overlay positioned at Left={Left}, Top={Top} for position {position}");
     }
 
     protected override void OnClosed(EventArgs e)

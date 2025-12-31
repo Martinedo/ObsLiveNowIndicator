@@ -13,6 +13,7 @@ public class DisplayManagerService : IDisposable
 {
     private readonly List<OverlayWindow> _overlays = new();
     private bool _isShowing;
+    private bool _isTestMode;
 
     public DisplayManagerService()
     {
@@ -20,26 +21,31 @@ public class DisplayManagerService : IDisposable
         SystemEvents.DisplaySettingsChanged += OnDisplaySettingsChanged;
     }
 
-    public void ShowIndicators(AppearanceType appearanceType, int size = 80, double opacity = 0.9, IconPosition position = IconPosition.TopRight, bool enablePulse = true)
+    public void ShowIndicators(AppearanceType appearanceType, int size = 80, double opacity = 0.9, IconPosition position = IconPosition.TopRight, bool enablePulse = true, bool testMode = false)
     {
         // Ensure we're on the UI thread
         if (!Application.Current.Dispatcher.CheckAccess())
         {
-            Application.Current.Dispatcher.Invoke(() => ShowIndicators(appearanceType, size, opacity, position, enablePulse));
+            Application.Current.Dispatcher.Invoke(() => ShowIndicators(appearanceType, size, opacity, position, enablePulse, testMode));
             return;
         }
 
         if (_isShowing)
             return;
+        
+        _isTestMode = testMode;
 
         _isShowing = true;
 
         // Create overlay for each screen
         var screens = WinForms.Screen.AllScreens;
+        System.Diagnostics.Debug.WriteLine($"Creating overlays for {screens.Length} screens");
+        
         foreach (var screen in screens)
         {
             try
             {
+                System.Diagnostics.Debug.WriteLine($"Creating overlay for screen at {screen.Bounds.Left},{screen.Bounds.Top} size {screen.Bounds.Width}x{screen.Bounds.Height}");
                 var overlay = new OverlayWindow();
                 overlay.SetAppearance(appearanceType);
                 overlay.SetSize(size);  // Set size first
@@ -48,27 +54,35 @@ public class DisplayManagerService : IDisposable
                 overlay.Show();
                 overlay.PositionOnScreen(screen, position);  // Position after size is set
                 _overlays.Add(overlay);
+                System.Diagnostics.Debug.WriteLine($"Successfully created overlay #{_overlays.Count}");
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error creating overlay: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Error creating overlay: {ex.Message}\n{ex.StackTrace}");
             }
         }
+        
+        System.Diagnostics.Debug.WriteLine($"Total overlays created: {_overlays.Count}");
     }
 
-    public void HideIndicators()
+    public void HideIndicators(bool forceHide = false)
     {
         // Ensure we're on the UI thread
         if (!Application.Current.Dispatcher.CheckAccess())
         {
-            Application.Current.Dispatcher.Invoke(() => HideIndicators());
+            Application.Current.Dispatcher.Invoke(() => HideIndicators(forceHide));
             return;
         }
 
         if (!_isShowing)
             return;
+        
+        // Don't hide if in test mode unless explicitly forced
+        if (_isTestMode && !forceHide)
+            return;
 
         _isShowing = false;
+        _isTestMode = false;
 
         foreach (var overlay in _overlays)
         {

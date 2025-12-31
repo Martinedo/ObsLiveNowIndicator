@@ -164,7 +164,7 @@ public partial class SettingsWindow : Window
         // If currently streaming, update the indicators with new appearance settings
         if (_isStreaming)
         {
-            _displayManager.HideIndicators();
+            _displayManager.HideIndicators(forceHide: true);
             _displayManager.ShowIndicators(appearanceType, (int)SizeSlider.Value, OpacitySlider.Value, iconPosition, EnablePulseCheckBox.IsChecked ?? true);
         }
 
@@ -227,8 +227,8 @@ public partial class SettingsWindow : Window
                 };
             }
 
-            // Show indicators with current settings
-            _displayManager.ShowIndicators(appearanceType, (int)SizeSlider.Value, OpacitySlider.Value, iconPosition, EnablePulseCheckBox.IsChecked ?? true);
+            // Show indicators with current settings (test mode enabled)
+            _displayManager.ShowIndicators(appearanceType, (int)SizeSlider.Value, OpacitySlider.Value, iconPosition, EnablePulseCheckBox.IsChecked ?? true, testMode: true);
             _isTesting = true;
             TestButton.Content = "Stop Test";
         }
@@ -246,7 +246,7 @@ public partial class SettingsWindow : Window
 
         try
         {
-            _displayManager.HideIndicators();
+            _displayManager.HideIndicators(forceHide: true);
             _isTesting = false;
             TestButton.Content = "Start Test";
         }
